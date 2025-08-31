@@ -1,0 +1,23 @@
+{
+  "name": "revita-contracts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "clean": "hardhat clean",
+    "build": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:base": "hardhat run scripts/deploy.ts --network baseSepolia",
+    "verify:base": "hardhat verify --network baseSepolia"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/node": "^20.11.17",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2"
+  }
+}
