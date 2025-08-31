@@ -1,140 +1,157 @@
-# Revita Chain
+# Revita Chain – Recovery Module MVP
 
-## Recuperación de Activos Digitales Descentralizada y Segura
+**Revita Chain** is a minimal proof-of-concept for **secure asset recovery** on Base Sepolia.  
+It provides a **Recovery Module** that enables users to regain control of their smart account in case of device loss, wallet change, or forgotten keys — without exposing raw biometric or sensitive data.
 
-**Revita Chain** es una solución innovadora diseñada para proteger tus activos digitales de pérdidas debido a claves olvidadas, dispositivos extraviados o situaciones imprevistas. Aprovechando el poder de las Smart Accounts, la biometría y una red de guardianes asignados por el usuario de confianza, Revita Chain ofrece un mecanismo de recuperación robusto, privado y fácil de usar.
+This MVP was built for the **Aleph Hackathon 2025** ([DoraHacks link](https://dorahacks.io/hackathon/aleph-hackathon/)), aligned with tracks like **Base**, **Filecoin/IPFS**, and **Zama FHE**.
 
---- 
+---
 
-## ✨ Características Principales
+## ✨ Features
 
--   **Safe Smart Account con Módulo Interno**: Extiende la funcionalidad de las cuentas seguras existentes con nuestra lógica de recuperación personalizada, garantizando la máxima seguridad de los fondos.
--   **Recuperación con Privacidad (FHE-ready)**: Diseñado para futuras integraciones con Cifrado Homomórfico Completo (FHE) de Zama, permitiendo la verificación biométrica sin exponer datos sensibles.
--   **Guardianes Asignados por el Usuario Verificados por Farcaster**: Permite a los usuarios designar hasta dos guardianes de confianza, cuya identidad puede ser verificada a través de sus handles de Farcaster y attestations on-chain.
--   **Verificación de Identidad Biométrica (WebAuthn/Passkey)**: Utiliza la biometría (huella digital, reconocimiento facial) y passkeys para un acceso rápido y seguro, con un contador de intentos de acceso y almacenamiento de hashes biométricos en IPFS/Filecoin.
--   **Timers y Notificaciones Automatizadas (Chainlink)**: Implementa time-locks de inactividad y notificaciones programadas (ej. "faltan 24 hs para vencer tu timelock") utilizando Chainlink Keepers y Functions.
--   **Almacenamiento Descentralizado (IPFS/Filecoin)**: Almacena de forma segura y redundante los hashes biométricos y otros datos críticos para la recuperación.
--   **Modelo de Incentivos Transparente**: Una fee única del 0.5% se cobra automáticamente tras la tercera recuperación en un año, implementada como un "costo al vault" que se quema o redistribuye.
--   **UX Multilingüe y Accesible**: Interfaz de usuario intuitiva en Español, Inglés y Portugués, con soporte para Dark Mode, tipografía legible y diseño Mobile-First, cumpliendo con WCAG 2.1.
--   **Tutorial y Modo Práctica**: Un onboarding guiado y un modo de práctica para que los usuarios se familiaricen con el proceso de recuperación sin riesgo.
+- **Guardian-based recovery**  
+  Up to 2 guardians can approve recovery. Configurable threshold (1-of-2 or 2-of-2).
+- **Timelock**  
+  Ensures recovery requests can only be executed after a predefined delay.
+- **Biometric hash reference**  
+  Uses IPFS/Filecoin **CIDs** to store references (hashes) of biometric proofs — never raw data.
+- **Modular design**  
+  Can be attached as a module to Safe smart accounts, or used standalone.
+- **Gas-efficient**  
+  Solidity ^0.8.24 with optimizer enabled.
+- **Auditable events**  
+  Every critical action emits an event for transparency and monitoring.
 
---- 
+---
 
-## 🏗️ Arquitectura del Proyecto
+## 📂 Repository Structure
 
-Revita Chain se compone de dos módulos principales:
+revita-chain/
+├── app/ # Next.js 14 front-end (to be integrated with Wagmi)
+├── contracts/ # Hardhat project with RecoveryModule.sol
+│ ├── contracts/ # Solidity contracts
+│ ├── scripts/ # Deployment scripts
+│ ├── hardhat.config.ts
+│ └── package.json
+├── .github/workflows/ # GitHub Actions CI for contracts
+├── .env.example # Environment variable template
+├── LICENSE # Apache-2.0 license
+└── README.md
 
-1.  **Smart Contracts (Solidity)**:
-    *   **RecoveryModule**: Un módulo interno para Safe Smart Accounts que gestiona la lógica de recuperación, guardianes, biometría y timelocks.
-    *   Integración con Chainlink para automatización y notificaciones.
-    *   Preparado para la verificación de guardianes vía attestations de Farcaster.
-    *   Desplegado en **Base Sepolia** (para el hackathon).
+yaml
+Copiar código
 
-2.  **Frontend (Next.js Mini App)**:
-    *   Construido con **Next.js 14**, **Wagmi** y **RainbowKit** para una interacción fluida con la blockchain.
-    *   Integración con la API WebAuthn del navegador para la gestión biométrica.
-    *   Manejo de almacenamiento descentralizado con librerías para IPFS/Filecoin.
-    *   Diseñado como una Mini App optimizada para el ecosistema **Base**.
+---
 
---- 
+## ⚙️ Prerequisites
 
-## 🛠️ Stack Tecnológico
+- **Node.js** v18 or v20
+- **npm** v9+
+- **Hardhat** (installed via package.json)
+- **Wallet with Base Sepolia test ETH**
 
--   **Smart Contracts**: Solidity, Hardhat, OpenZeppelin, Safe Protocol Kit, Chainlink Contracts.
--   **Blockchain**: Base (Sepolia Testnet).
--   **Frontend**: Next.js 14, React, TypeScript, Wagmi, Viem, RainbowKit, Tailwind CSS.
--   **Biometría**: WebAuthn API.
--   **Almacenamiento Descentralizado**: IPFS, Filecoin.
--   **Automatización/Oráculos**: Chainlink Keepers, Chainlink Functions.
--   **Identidad Social**: Farcaster (integración conceptual/vía attestations).
--   **DevOps**: GitHub Actions (CI/CD), Jest (Testing), Docker (entorno de desarrollo).
+---
 
---- 
+## 🔑 Environment Setup
 
-## 🚀 Cómo Empezar (Para Desarrolladores)
-
-Para poner en marcha Revita Chain en tu entorno local, sigue estos pasos:
-
-### 1. Requisitos Previos
-
-Asegúrate de tener instalados:
--   Git
--   Node.js (v18+) y npm
--   Python (v3.9+) y pip
--   Docker y Docker Compose
--   Visual Studio Code (recomendado)
-
-### 2. Clonar el Repositorio
-
-```bash
-git clone [URL_DEL_REPOSITORIO_REVITA_CHAIN]
-cd revita-chain
-```
-
-### 3. Configuración de Variables de Entorno
-
-Copia el archivo `.env.example` y renómbralo a `.env` en la raíz del proyecto. Rellena las variables necesarias:
+Copy `.env.example` to `.env` and fill in values:
 
 ```bash
 cp .env.example .env
-```
+Edit .env:
 
-Edita `.env` con tus claves privadas, API keys de Basescan y Project ID de WalletConnect.
+ini
+Copiar código
+# Deployer private key (with 0x prefix)
+PRIVATE_KEY=0x...
 
-### 4. Smart Contracts
+# Base Sepolia RPC & Basescan
+RPC_URL=https://sepolia.base.org
+BASESCAN_API_KEY=your_basescan_api_key
 
-```bash
+# Guardians & module config
+GUARDIAN1=0x0000000000000000000000000000000000000001
+GUARDIAN2=0x0000000000000000000000000000000000000002
+THRESHOLD=2
+TIMELOCK_SECONDS=86400
+BIOMETRIC_CID_SAMPLE=bafy...
+
+# Frontend config
+NEXT_PUBLIC_CHAIN_ID=84532
+NEXT_PUBLIC_RPC_URL=https://sepolia.base.org
+WALLETCONNECT_PROJECT_ID=your_walletconnect_id
+🚀 Deployment (Base Sepolia)
+Install dependencies and compile:
+
+bash
+Copiar código
 cd contracts
 npm install
 npx hardhat compile
-# Desplegar en Base Sepolia (asegúrate de tener fondos de prueba)
-# npx hardhat run scripts/deploy.ts --network baseSepolia
-# Ejecutar tests
+Deploy RecoveryModule:
+
+bash
+Copiar código
+npm run deploy:base
+Example output:
+
+csharp
+Copiar código
+[OK] RecoveryModule deployed at: 0x1234...abcd
+Verify on Basescan:
+
+bash
+Copiar código
+npm run verify:base -- <ADDRESS> "<OWNER>" "<GUARDIAN1>" "<GUARDIAN2>" <THRESHOLD> <TIMELOCK_SECONDS>
+🧩 Contract Overview
+RecoveryModule.sol
+
+startRecovery(address proposedOwner, string biometricCID)
+Guardian starts a recovery process.
+
+approveRecovery(bytes32 requestId)
+Other guardian(s) approve recovery.
+
+executeRecovery(bytes32 requestId)
+After timelock, ownership is transferred to proposedOwner.
+
+cancelRecovery(bytes32 requestId)
+Owner can cancel pending recovery.
+
+Events emitted for every action (auditability and UI integration).
+
+🌐 Frontend Integration
+Framework: Next.js 14
+
+Wallet integration: Wagmi / RainbowKit
+
+Chain: Base Sepolia (chainId 84532)
+
+ABI: found in contracts/artifacts/contracts/RecoveryModule.sol/RecoveryModule.json
+
+Frontend flow (to be implemented in app/):
+
+Connect wallet (MetaMask, Coinbase Wallet, etc.).
+
+Call startRecovery with a proposed owner address + IPFS CID.
+
+Guardians approve with approveRecovery.
+
+Execute recovery after timelock with executeRecovery.
+
+🛠️ Development Scripts
+bash
+Copiar código
+# Compile contracts
+npx hardhat compile
+
+# Run tests (placeholder)
 npx hardhat test
-```
 
-### 5. Frontend
+# Deploy to Base Sepolia
+npm run deploy:base
 
-```bash
-cd app
-npm install
-npm run build # Para construir la aplicación
-npm run dev   # Para iniciar el servidor de desarrollo
-# Ejecutar tests
-npm test
-```
-
-Tu aplicación frontend estará disponible en `http://localhost:3000`.
-
---- 
-
-## 🏆 Alineación con el Hackathon Aleph
-
-Revita Chain está fuertemente alineado con varios tracks clave del Hackathon Aleph:
-
--   **Zama Track**: Integración futura de FHE para privacidad biométrica.
--   **Filecoin Track**: Uso de IPFS/Filecoin para almacenamiento descentralizado de datos críticos.
--   **Base Track**: Desarrollo como una Mini App optimizada para el ecosistema Base.
--   **Lisk Founder Track**: Construcción de una aplicación descentralizada que resuelve un problema real y tiene impacto en el mundo real.
-
---- 
-
-## 🛣️ Próximos Pasos (Post-Hackathon)
-
--   Implementación completa de FHE (Zama) para verificación biométrica privada.
--   Integración robusta con Farcaster y Ethereum Attestation Service (EAS).
--   Sistema de notificaciones avanzado (Push Protocol, SendGrid).
--   Optimización de gas y escalabilidad.
--   Auditorías de seguridad y gobernanza descentralizada.
-
---- 
-
-## 📄 Licencia
-
-Este proyecto está bajo la licencia Apache 2.0 . Consulta el archivo `LICENSE` para más detalles.
-
---- 
-
-**Desarrollado con pasión por CynthiaOrtizOviedo.**
+# Verify on Basescan
+npm run verify:base
 
 
