@@ -1,68 +1,34 @@
 import { ethers } from "hardhat";
-import { SafeFactory } from "@safe-global/protocol-kit";
-import { EthersAdapter } from "@safe-global/protocol-kit";
-import { SafeAccountConfig } from "@safe-global/protocol-kit";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 async function main() {
-  const [deployer] = await ethers.getSigners();
-  console.log("Desplegando contratos con la cuenta:", deployer.address);
+  const owner = (await ethers.getSigners())[0].address;
+  const g1 = process.env.GUARDIAN1 ?? ethers.ZeroAddress;
+  const g2 = process.env.GUARDIAN2 ?? ethers.ZeroAddress;
+  const threshold = Number(process.env.THRESHOLD ?? 1);
+  const timelock = Number(process.env.TIMELOCK_SECONDS ?? 86400);
+  const cid = process.env.BIOMETRIC_CID_SAMPLE ?? "";
 
-  // 1. Desplegar el RecoveryModule
-  // Los argumentos del constructor para RecoveryModule son _safeAddress, _subscriptionId, _functionsRouter, _donId
-  // Para el despliegue inicial, _safeAddress puede ser un placeholder (ZeroAddress) y se actualizará después
-  // o se asume que el Safe ya existe y se pasa su dirección real.
-  // Para este ejemplo, usaremos un placeholder y asumiremos que la inicialización real se hará off-chain o en otro script.
-  const MOCK_SUBSCRIPTION_ID = 123; // Reemplazar con un ID real de Chainlink Functions Subscription
-  const MOCK_FUNCTIONS_ROUTER = "0xYourFunctionsRouterAddress"; // Reemplazar con la dirección real del router
-  const MOCK_DON_ID = "0xYourDonId"; // Reemplazar con el ID real del DON
+  console.log("[*] Params:", { owner, g1, g2, threshold, timelock });
 
-  const RecoveryModule = await ethers.getContractFactory("RecoveryModule");
-  const recoveryModule = await RecoveryModule.deploy(
-    ethers.ZeroAddress, // Placeholder para _safeAddress
-    MOCK_SUBSCRIPTION_ID,
-    MOCK_FUNCTIONS_ROUTER,
-    MOCK_DON_ID
-  );
-  await recoveryModule.waitForDeployment();
-  const recoveryModuleAddress = await recoveryModule.getAddress();
-  console.log("RecoveryModule desplegado en:", recoveryModuleAddress);
+  const Factory = await ethers.getContractFactory("RecoveryModule");
+  const c = await Factory.deploy(owner, g1, g2, threshold as any, timelock);
+  await c.waitForDeployment();
+  const addr = await c.getAddress();
+  console.log("[OK] RecoveryModule deployed at:", addr);
 
-  // 2. Desplegar una nueva Safe Smart Account
-  // Usar direcciones pre-desplegadas de Safe para Base Sepolia
-  // Consulta https://docs.safe.global/safe-core-protocol/safe-addresses para las direcciones correctas
-  // Estas son direcciones de ejemplo, DEBEN SER REEMPLAZADAS por las reales de Base Sepolia
-  const safeSingletonAddress = "0x3E5c63644E683549055b9Be8653de26E0B4CD36E"; // Ejemplo para Sepolia
-  const safeProxyFactoryAddress = "0x4e1DCf7AD4Ee468079bcBleaa06B7a00Cc6bc.sol"; // Ejemplo para Sepolia
-
-  const ethAdapter = new EthersAdapter({ ethers, signerOrProvider: deployer });
-  const safeFactory = await SafeFactory.create({ ethAdapter });
-
-  const safeAccountConfig: SafeAccountConfig = {
-    owners: [deployer.address], // El desplegador será el primer propietario
-    threshold: 1, // Para simplificar el MVP, 1 de 1 propietario
-  };
-
-  const safeSdk = await safeFactory.deploySafe({
-    safeAccountConfig,
-    saltNonce: Date.now().toString(), // Usar un nonce único para cada despliegue
-  });
-
-  const safeAddress = await safeSdk.getAddress();
-  console.log("Safe Smart Account desplegada en:", safeAddress);
-
-  // 3. Habilitar el RecoveryModule en el Safe
-  // En un escenario real, el Safe debería ser el propietario del RecoveryModule
-  // o el RecoveryModule debería tener una función para ser inicializado por el Safe.
-  // Aquí, se asume que el Safe será el que habilite el módulo.
-  // Este paso es conceptual y requeriría una transacción real desde el Safe.
-  console.log("\n¡Despliegue de Smart Contracts completado!");
-  console.log("Dirección del RecoveryModule:", recoveryModuleAddress);
-  console.log("Dirección del Safe Smart Account:", safeAddress);
+  if (cid) {
+    try {
+      const id = await c.startRecovery.staticCall(owner, cid);
+      console.log("[INFO] Sample requestId:", id);
+    } catch {
+      console.log("[INFO] Sample request skipped (staticCall failed without guardians set)");
+    }
+  }
 }
 
-main().catch((error) => {
-  console.error(error);
+main().catch((e) => {
+  console.error(e);
   process.exitCode = 1;
 });
-
-
