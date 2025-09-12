@@ -39,7 +39,6 @@ revita-chain/
 └── README.md
 
 yaml
-Copiar código
 
 ---
 
@@ -61,7 +60,7 @@ cp .env.example .env
 Edit .env:
 
 ini
-Copiar código
+
 # Deployer private key (with 0x prefix)
 PRIVATE_KEY=0x...
 
@@ -84,24 +83,20 @@ WALLETCONNECT_PROJECT_ID=your_walletconnect_id
 Install dependencies and compile:
 
 bash
-Copiar código
 cd contracts
 npm install
 npx hardhat compile
 Deploy RecoveryModule:
 
 bash
-Copiar código
 npm run deploy:base
 Example output:
 
 csharp
-Copiar código
 [OK] RecoveryModule deployed at: 0x1234...abcd
 Verify on Basescan:
 
 bash
-Copiar código
 npm run verify:base -- <ADDRESS> "<OWNER>" "<GUARDIAN1>" "<GUARDIAN2>" <THRESHOLD> <TIMELOCK_SECONDS>
 🧩 Contract Overview
 RecoveryModule.sol
@@ -141,7 +136,6 @@ Execute recovery after timelock with executeRecovery.
 
 🛠️ Development Scripts
 bash
-Copiar código
 # Compile contracts
 npx hardhat compile
 
